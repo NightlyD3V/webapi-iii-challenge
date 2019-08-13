@@ -3,10 +3,16 @@ const helmet = require('helmet');
 const server = express();
 
 const User = require('./users/userDb.js');
+const Post = require('./posts/postDb.js');
+
+const userRouter = require('./users/userRouter.js');
+const postRouter = require('./posts/postRouter.js');
 
 server.use(helmet());
 server.use(express.json());
 server.use(logger);
+server.use('/api/users', userRouter);
+server.use('/api/posts', postRouter);
 
 server.get('/', (req, res) => {
   res.send(`<h2>Let's write some middleware!</h2>`)
