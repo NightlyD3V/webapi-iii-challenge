@@ -75,7 +75,7 @@ router.get('/:id/posts', [ validateUserId, validatePost ], async (req, res) => {
 router.delete('/:id', [ validateUserId ], async (req, res) => {
     try {
         const { id } = req.params
-        const user = await User.getById(id);
+        const user = await User.remove(id);
         req.status(200).json({
             message: `User ${user} with ID: ${id} deleted`
         })
@@ -133,7 +133,7 @@ function validateUser(req, res, next) {
         if((req.body) && (Object.keys(req.body).length > 0)) {
             res.status(200)
             next();
-          } else if((req.body === undefined) || (Object.keys(req.body).name.length === 0)) {
+          } if(((req.body).name === undefined) || (Object.keys(req.body).name.length === 0)) {
               res.status(400).json({
                   message: 'Missing name field required'
               })
@@ -157,7 +157,7 @@ function validatePost(req, res, next) {
 
   if(body && Object.keys(req.body).length > 0) {
     next();
-  } else if(req.body.text === '') {
+  } else if(((req.body).text === undefined) || (Object.keys(req.body).text.length === 0))) {
     res.status(400).json({
       message: 'Missing required text field'
     })
