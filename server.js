@@ -36,6 +36,7 @@ function validateUserId(req, res, next) {
     .then(user => {
       if(user) {
         req.user = user;
+        res.status(200).json(user);
         next();
       } else {
         res.status(500).json({
@@ -72,3 +73,6 @@ function validatePost(req, res, next) {
 };
 
 module.exports = server;
+module.exports = validateUserId;
+module.exports = validateUser;
+module.exports = validatePost;

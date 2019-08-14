@@ -3,6 +3,7 @@ const User = require('./userDb.js');
 const Post = require('../posts/postDb.js');
 const router = express.Router();
 
+
 router.post('/', async (req, res) => {
     try {
         const newUser = await User.insert(req.body);
@@ -15,7 +16,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-router.post('/:id/posts', async (req, res) => {
+router.post('/:id/posts', [ validateUserId ], async (req, res) => {
     try {
         const { id } = req.params;
         const post = await Post.getById(id);
@@ -40,7 +41,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', [ validateUserId ], async (req, res) => {
     try {
         const { id } = req.params;
         const user = await User.getById(id);
@@ -53,7 +54,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-router.get('/:id/posts', async (req, res) => {
+router.get('/:id/posts', [ validateUserId ], async (req, res) => {
     try {
         const { id } = req.params
         const post = await Post.getById(id);
@@ -66,12 +67,12 @@ router.get('/:id/posts', async (req, res) => {
     }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', [ validateUserId ], async (req, res) => {
     try {
         const { id } = req.params
         const user = await User.getById(id);
         req.status(200).json({
-            message: `User with ID: ${id} deleted`
+            message: `User ${user} with ID: ${id} deleted`
         })
     } catch(err) {
         console.log(err);
@@ -86,6 +87,11 @@ router.put('/:id', async (req, res) => {
         const { id } = req.params;
         const update = await User.update(id);
         res.status(200).json({UserUpdate: `${update}`})
+    } catch(err) {
+        console.log(err);
+        res.status(500).json({
+            message: `Error updating user with ID: ${id}`
+        })
     }
 });
 
