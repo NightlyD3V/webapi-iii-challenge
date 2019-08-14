@@ -53,7 +53,15 @@ function validateUserId(req, res, next) {
 };
 
 function validateUser(req, res, next) {
-
+  const user = req.user;
+    if(user.body && Object.keys(req.body).length > 0) {
+      res.status(200)
+      next();
+    } else {
+      res.status(500).json({
+        message: 'Missing user data!'
+      })
+    }
 };
 
 function validatePost(req, res, next) {
@@ -73,6 +81,3 @@ function validatePost(req, res, next) {
 };
 
 module.exports = server;
-module.exports = validateUserId;
-module.exports = validateUser;
-module.exports = validatePost;

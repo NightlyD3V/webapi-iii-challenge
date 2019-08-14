@@ -4,6 +4,7 @@ const router = express.Router();
 
 const Post = require('./postDb.js');
 
+/* GET: /api/posts/ */ 
 router.get('/', async (req, res) => {
     try {
         const posts = await Post.get();
@@ -16,7 +17,8 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.get('/:id', async (req, res) => {
+/* GET: /api/posts/:id */
+router.get('/:id', [ validatePostId ], async (req, res) => {
     try {
         const { id } = req.params;
         const post = await Post.getById(id);
@@ -29,7 +31,8 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-router.delete('/:id', async (req, res) => {
+/* DELETE: /api/posts/:id */
+router.delete('/:id', [ validatePostId ], async (req, res) => {
     try {
         const { id } = req.params;
         const post = await Post.remove(id);
@@ -42,7 +45,8 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
-router.put('/:id', (req, res) => {
+/* PUT: /api/posts/:id */
+router.put('/:id', [ validatePostId ], async (req, res) => {
     try {
         const { id } = req.params;
         const post = await Post.update(id);
@@ -58,7 +62,26 @@ router.put('/:id', (req, res) => {
 // custom middleware
 
 function validatePostId(req, res, next) {
+    const { id } = req.params;
 
+    Post.getById(id)
+    .then(user => {
+      if(user) {
+        req.user = user;
+        res.status(200).json(user);
+        next();
+      } else {
+        res.status(500).json({
+          message: 'Invalid user ID'
+        });
+      };
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({
+        message: 'Error processing request!'
+      })
+    })
 };
 
 module.exports = router;

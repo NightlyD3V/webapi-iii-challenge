@@ -3,7 +3,7 @@ const User = require('./userDb.js');
 const Post = require('../posts/postDb.js');
 const router = express.Router();
 
-
+/* POST: /api/users/ */ 
 router.post('/', async (req, res) => {
     try {
         const newUser = await User.insert(req.body);
@@ -16,7 +16,8 @@ router.post('/', async (req, res) => {
     }
 });
 
-router.post('/:id/posts', [ validateUserId ], async (req, res) => {
+/* POST: /api/users/:id/posts */ 
+router.post('/:id/posts', [ validateUserId, validatePost ], async (req, res) => {
     try {
         const { id } = req.params;
         const post = await Post.getById(id);
@@ -29,6 +30,7 @@ router.post('/:id/posts', [ validateUserId ], async (req, res) => {
     }
 });
 
+/* GET: /api/users/ */ 
 router.get('/', async (req, res) => {
     try {
         const users = await User.get();
@@ -41,6 +43,7 @@ router.get('/', async (req, res) => {
     }
 });
 
+/* GET: api/users/:id */ 
 router.get('/:id', [ validateUserId ], async (req, res) => {
     try {
         const { id } = req.params;
@@ -54,7 +57,8 @@ router.get('/:id', [ validateUserId ], async (req, res) => {
     }
 });
 
-router.get('/:id/posts', [ validateUserId ], async (req, res) => {
+/* GET: api/users/:id/posts */
+router.get('/:id/posts', [ validateUserId, validatePost ], async (req, res) => {
     try {
         const { id } = req.params
         const post = await Post.getById(id);
@@ -67,6 +71,7 @@ router.get('/:id/posts', [ validateUserId ], async (req, res) => {
     }
 });
 
+/* DELETE: api/users/:id */
 router.delete('/:id', [ validateUserId ], async (req, res) => {
     try {
         const { id } = req.params
@@ -82,10 +87,11 @@ router.delete('/:id', [ validateUserId ], async (req, res) => {
     }
 });
 
-router.put('/:id', async (req, res) => {
+/* PUT: api/users/:id */
+router.put('/:id', [ validateUserId, validateUser ], async (req, res) => {
     try {
         const { id } = req.params;
-        const update = await User.update(id);
+        const update = await User.update(id, req.body);
         res.status(200).json({UserUpdate: `${update}`})
     } catch(err) {
         console.log(err);
@@ -98,15 +104,59 @@ router.put('/:id', async (req, res) => {
 //custom middleware
 
 function validateUserId(req, res, next) {
+    const { id } = req.params;
 
+    User.getById(id)
+    .then(user => {
+      if(user) {
+        req.user = user;
+        res.status(200).json(user);
+        next();
+      } else {
+        res.status(500).json({
+          message: 'Invalid user ID'
+        });
+      };
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({
+        message: 'Error processing request!'
+      })
+    })
 };
 
 function validateUser(req, res, next) {
-
+    const { id } = req.params;
+    
+    if(user.body && Object.keys(req.body).length > 0) {
+      res.status(200)
+      next();
+    } else if(user.body.name && Object.keys(user.body.name).length === 0) {
+        res.status(400).json({
+            message: 'Missing name field required'
+        })
+    } else {
+      res.status(400).json({
+        message: 'Missing user data!'
+      })
+    }
 };
 
 function validatePost(req, res, next) {
+  const body = req.body;
 
+  if(body && Object.keys(req.body).length > 0) {
+    next();
+  } else if(req.body.text === '') {
+    res.status(400).json({
+      message: 'Missing required text field'
+    })
+  }else {
+    res.status(500).json({
+      message: "Missing post data!"
+    })
+  }
 };
 
 module.exports = router;
