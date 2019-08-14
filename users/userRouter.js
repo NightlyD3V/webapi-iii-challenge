@@ -4,7 +4,7 @@ const Post = require('../posts/postDb.js');
 const router = express.Router();
 
 /* POST: /api/users/ */ 
-router.post('/', async (req, res) => {
+router.post('/', [ validateUser ], async (req, res) => {
     try {
         const newUser = await User.insert(req.body);
         res.status(200).json({User: `${newUser} created!`});
@@ -113,7 +113,7 @@ function validateUserId(req, res, next) {
         res.status(200).json(user);
         next();
       } else {
-        res.status(500).json({
+        res.status(400).json({
           message: 'Invalid user ID'
         });
       };
@@ -128,18 +128,27 @@ function validateUserId(req, res, next) {
 
 function validateUser(req, res, next) {
     const { id } = req.params;
-    
-    if(user.body && Object.keys(req.body).length > 0) {
-      res.status(200)
-      next();
-    } else if(user.body.name && Object.keys(user.body.name).length === 0) {
-        res.status(400).json({
-            message: 'Missing name field required'
+
+    try{
+        if((req.body) && (Object.keys(req.body).length > 0)) {
+            res.status(200)
+            next();
+          } else if((req.body === undefined) || (Object.keys(req.body).name.length === 0)) {
+              res.status(400).json({
+                  message: 'Missing name field required'
+              })
+              next();
+          } else {
+            res.status(400).json({
+              message: 'Missing user data!'
+            })
+          }
+    }
+    catch(err) {
+        console.log(err);
+        res.status(500).json({
+            message: 'Error processing that request'
         })
-    } else {
-      res.status(400).json({
-        message: 'Missing user data!'
-      })
     }
 };
 
