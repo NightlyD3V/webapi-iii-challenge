@@ -21,7 +21,7 @@ router.post('/:id/posts', [ validateUserId, validatePost ], async (req, res) => 
     try {
         const { id } = req.params;
         const post = await Post.getById(id);
-        res.status(200).json(post.body)
+        res.status(200).json(post)
     } catch(err) {
         console.log(err);
         res.status(500).json({
@@ -157,7 +157,7 @@ function validatePost(req, res, next) {
 
   if(body && Object.keys(req.body).length > 0) {
     next();
-  } else if(((req.body).text === undefined) || (Object.keys(req.body).text.length === 0))) {
+  } else if(((req.body).text === undefined) || (Object.keys(req.body).text.length === 0)) {
     res.status(400).json({
       message: 'Missing required text field'
     })
