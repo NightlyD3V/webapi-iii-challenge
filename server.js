@@ -1,9 +1,10 @@
 require('dotenv').config();
-const port = process.env.PORT || 4000;
 
 const express = require('express');
 const helmet = require('helmet');
 const server = express();
+
+const port = process.env.PORT || 4000;
 
 const User = require('./users/userDb.js');
 const Post = require('./posts/postDb.js');
